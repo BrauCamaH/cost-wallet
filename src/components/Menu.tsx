@@ -12,10 +12,10 @@ import {
 
 import { useLocation } from "react-router-dom";
 import {
-  mailOutline,
-  mailSharp,
-  paperPlaneOutline,
-  paperPlaneSharp,
+  barChart,
+  barChartSharp,
+  bookmark,
+  bookmarkSharp,
 } from "ionicons/icons";
 import "./Menu.css";
 
@@ -30,14 +30,14 @@ const appPages: AppPage[] = [
   {
     title: "Notes",
     url: "/page/Notes",
-    iosIcon: mailOutline,
-    mdIcon: mailSharp,
+    iosIcon: bookmark,
+    mdIcon: bookmarkSharp,
   },
   {
-    title: "Expenses",
-    url: "/page/Expenses",
-    iosIcon: paperPlaneOutline,
-    mdIcon: paperPlaneSharp,
+    title: "Balance",
+    url: "/page/Balance",
+    iosIcon: barChart,
+    mdIcon: barChartSharp,
   },
 ];
 
@@ -48,7 +48,7 @@ const Menu: React.FC = () => {
     <IonMenu contentId="main" type="overlay">
       <IonContent>
         <IonList id="inbox-list">
-          <IonListHeader>Cost Wallet</IonListHeader>
+          <IonListHeader>NoteCostLink</IonListHeader>
           <IonNote>Notes and Balance</IonNote>
           {appPages.map((appPage, index) => {
             return (

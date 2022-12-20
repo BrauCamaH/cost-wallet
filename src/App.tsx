@@ -29,6 +29,8 @@ import "@ionic/react/css/display.css";
 import "./theme/variables.css";
 import NotesPage from "./pages/Notes";
 
+import { NotesProvider } from "./providers/NoteProvider";
+
 setupIonicReact();
 
 const App: React.FC = () => {
@@ -39,13 +41,15 @@ const App: React.FC = () => {
           <Menu />
           <IonRouterOutlet id="main">
             <Route path="/" exact={true}>
-              <Redirect to="/page/Inbox" />
+              <Redirect to="/page/Notes" />
             </Route>
-            <Route path="/page/Notes/" exact={true}>
-              <Page >
-                <NotesPage/>
-              </Page>
-            </Route>
+            <NotesProvider>
+              <Route path="/page/Notes/" exact={true}>
+                <Page>
+                  <NotesPage />
+                </Page>
+              </Route>
+            </NotesProvider>
           </IonRouterOutlet>
         </IonSplitPane>
       </IonReactRouter>

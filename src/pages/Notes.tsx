@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-
+import { useState, useRef, useEffect } from "react";
+import { collection, addDoc, getDocs } from "firebase/firestore";
 import {
   IonButton,
   IonFab,
@@ -12,16 +12,57 @@ import {
   IonTitle,
 } from "@ionic/react";
 import { add, close } from "ionicons/icons";
+import { useNotesDispatch, useNotesState } from "../providers/NoteProvider";
 
 import { IonModal, IonInput, IonToolbar } from "@ionic/react";
+import { db } from "../firebase";
+import NoteCard from "../components/CardNote";
+import Note from "../models/Note";
 
 export default function NotesPage() {
   const [showModal, setShowModal] = useState<boolean>(false);
+
+  const notesState = useNotesState();
+
+  const dispatch = useNotesDispatch();
+
+  useEffect(() => {
+    const getNotes = async () => {
+      const querySnapshot = await getDocs(collection(db, "notes"));
+      const documents: Note[] = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      dispatch({ type: "set-notes", payload: documents });
+    };
+    getNotes();
+  }, []);
+
   function Modal() {
     const modal = useRef<HTMLIonModalElement>(null);
 
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
+    const [title, setTitle] = useState("");
+    const [message, setMessage] = useState("");
+    async function createNote() {
+      try {
+        const docRef = await addDoc(collection(db, "notes"), {
+          title,
+          message,
+        });
+        setShowModal(false);
+        modal.current?.dismiss();
+
+        dispatch({
+          type: "add-note",
+          payload: { id: docRef.id, title, message },
+        });
+
+        console.log("Document written with ID: ", docRef.id);
+      } catch (e) {
+        console.error("Error adding document: ", e);
+      }
+    }
     return (
       <IonModal
         ref={modal}
@@ -42,8 +83,8 @@ export default function NotesPage() {
           <IonLabel color="secondary">Title :</IonLabel>
           <IonInput
             placeholder="Title"
-            value={username}
-            onIonChange={(e) => setUsername(e.detail.value!)}
+            value={title}
+            onIonChange={(e) => setTitle(e.detail.value!)}
           ></IonInput>
         </IonItem>
         <IonItem>
@@ -52,12 +93,12 @@ export default function NotesPage() {
         <IonTextarea
           autoGrow
           placeholder="Write your note..."
-          value={password}
-          onIonChange={(e) => setPassword(e.detail.value!)}
+          value={message}
+          onIonChange={(e) => setMessage(e.detail.value!)}
         ></IonTextarea>
         <IonFooter>
           <IonToolbar>
-            <IonButton slot="end" color="secondary" onClick={() => {}}>
+            <IonButton slot="end" color="secondary" onClick={createNote}>
               Create
             </IonButton>
           </IonToolbar>
@@ -68,6 +109,17 @@ export default function NotesPage() {
   return (
     <>
       <Modal />
+      <div style={{ marginBottom: "60px" }}>
+        {notesState.notes.map((note) => (
+          <NoteCard
+            key={note.id}
+            id={note.id}
+            title={note.title}
+            message={note.message}
+          />
+        ))}
+      </div>
+
       <IonFab horizontal="end" vertical="bottom" slot="fixed">
         <IonFabButton onClick={() => setShowModal(!showModal)}>
           <IonIcon icon={add} />
