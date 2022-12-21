@@ -50,6 +50,11 @@ const App: React.FC = () => {
                 </Page>
               </Route>
             </NotesProvider>
+            <Route path="/page/Balance/" exact={true}>
+              <Page>
+                <></>
+              </Page>
+            </Route>
           </IonRouterOutlet>
         </IonSplitPane>
       </IonReactRouter>
