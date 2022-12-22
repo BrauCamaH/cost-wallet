@@ -30,6 +30,7 @@ import "./theme/variables.css";
 import NotesPage from "./pages/Notes";
 
 import { NotesProvider } from "./providers/NoteProvider";
+import Wallet from "./pages/Wallet";
 
 setupIonicReact();
 
@@ -50,9 +51,9 @@ const App: React.FC = () => {
                 </Page>
               </Route>
             </NotesProvider>
-            <Route path="/page/Balance/" exact={true}>
+            <Route path="/page/Wallet/" exact={true}>
               <Page>
-                <></>
+                <Wallet />
               </Page>
             </Route>
           </IonRouterOutlet>

@@ -11,12 +11,7 @@ import {
 } from "@ionic/react";
 
 import { useLocation } from "react-router-dom";
-import {
-  barChart,
-  barChartSharp,
-  bookmark,
-  bookmarkSharp,
-} from "ionicons/icons";
+import { bookmark, bookmarkSharp, wallet, walletSharp } from "ionicons/icons";
 import "./Menu.css";
 
 interface AppPage {
@@ -34,10 +29,10 @@ const appPages: AppPage[] = [
     mdIcon: bookmarkSharp,
   },
   {
-    title: "Balance",
-    url: "/page/Balance",
-    iosIcon: barChart,
-    mdIcon: barChartSharp,
+    title: "Wallet",
+    url: "/page/Wallet",
+    iosIcon: wallet,
+    mdIcon: walletSharp,
   },
 ];
 

@@ -33,7 +33,7 @@ const NoteModal: React.FC<NoteModalProps> = ({
   setShowModal,
   noteToEdit,
 }) => {
-  const { register, setValue, handleSubmit, reset } = useForm<FormData>({
+  const { register, setValue, handleSubmit } = useForm<FormData>({
     defaultValues: {
       title: noteToEdit ? noteToEdit.title : "",
       message: noteToEdit ? noteToEdit.message : "",
@@ -57,8 +57,6 @@ const NoteModal: React.FC<NoteModalProps> = ({
         type: "add-note",
         payload: { id: docRef.id, title, message },
       });
-
-      console.log("Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -89,7 +87,6 @@ const NoteModal: React.FC<NoteModalProps> = ({
       isOpen={showModal}
       onDidDismiss={() => {
         setShowModal(false);
-        reset();
       }}
     >
       <IonToolbar>
