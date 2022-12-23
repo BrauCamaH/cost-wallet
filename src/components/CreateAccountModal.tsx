@@ -15,6 +15,7 @@ import {
 } from "@ionic/react";
 import { useForm } from "react-hook-form";
 import { collection, addDoc } from "firebase/firestore";
+import { useAccountsDispatch } from "../providers/WalletProvider";
 
 import Account from "../models/Account";
 import { close } from "ionicons/icons";
@@ -32,17 +33,22 @@ const CreateAccountModal: React.FC<AccountModalProps> = ({
   const { register, setValue, handleSubmit } = useForm<Account>();
   const modal = useRef<HTMLIonModalElement>(null);
 
+  const dispatch = useAccountsDispatch();
   const [color, setColor] = useState("#aabbcc");
 
-  const createAccount = handleSubmit(async ({ name, type, initialValue }) => {
+  const createAccount = handleSubmit(async ({ name, type, value }) => {
     const docRef = await addDoc(collection(db, "accounts"), {
       name,
       type,
-      initialValue,
+      value,
       color,
     });
     setShowModal(false);
     modal.current?.dismiss();
+    dispatch({
+      type: "add-account",
+      payload: { id: docRef.id, name, type, value: value },
+    });
     console.log("Document written with ID: ", docRef.id);
   });
 
@@ -92,10 +98,8 @@ const CreateAccountModal: React.FC<AccountModalProps> = ({
         <IonItem>
           <IonLabel position="stacked">Initial Value</IonLabel>
           <IonInput
-            {...register("initialValue")}
-            onIonChange={(e) =>
-              setValue("initialValue", parseFloat(e.detail.value!))
-            }
+            {...register("value")}
+            onIonChange={(e) => setValue("value", parseFloat(e.detail.value!))}
             type="number"
             placeholder="Enter text"
           ></IonInput>

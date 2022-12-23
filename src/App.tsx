@@ -25,11 +25,15 @@ import "@ionic/react/css/text-transformation.css";
 import "@ionic/react/css/flex-utils.css";
 import "@ionic/react/css/display.css";
 
+//Custom Style for ionic components
+import "./theme/style.css";
+
 /* Theme variables */
 import "./theme/variables.css";
 import NotesPage from "./pages/Notes";
 
 import { NotesProvider } from "./providers/NoteProvider";
+import { WalletProvider } from "./providers/WalletProvider";
 import Wallet from "./pages/Wallet";
 
 setupIonicReact();
@@ -44,18 +48,18 @@ const App: React.FC = () => {
             <Route path="/" exact={true}>
               <Redirect to="/page/Notes" />
             </Route>
-            <NotesProvider>
+            <Page>
               <Route path="/page/Notes/" exact={true}>
-                <Page>
+                <NotesProvider>
                   <NotesPage />
-                </Page>
+                </NotesProvider>
               </Route>
-            </NotesProvider>
-            <Route path="/page/Wallet/" exact={true}>
-              <Page>
-                <Wallet />
-              </Page>
-            </Route>
+              <Route path="/page/Wallet/" exact={true}>
+                <WalletProvider>
+                  <Wallet />
+                </WalletProvider>
+              </Route>
+            </Page>
           </IonRouterOutlet>
         </IonSplitPane>
       </IonReactRouter>

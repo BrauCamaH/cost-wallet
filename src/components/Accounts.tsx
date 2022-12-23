@@ -8,18 +8,26 @@ import {
   IonToolbar,
   IonIcon,
 } from "@ionic/react";
-import { add } from "ionicons/icons";
+import { add, wallet } from "ionicons/icons";
 
 import { formattAsCurrency } from "../utils/currency";
 import CreateAccountModal from "./CreateAccountModal";
 import Account from "../models/Account";
 import { collection, getDocs } from "firebase/firestore";
 
+import {
+  useAccountsDispatch,
+  useAccountsState,
+} from "../providers/WalletProvider";
+
 import { db } from "../firebase";
 
 export default function Accounts() {
   const [showModal, setShowModal] = useState(false);
-  const [accounts, setAccounts] = useState<Account[]>([]);
+
+  const state = useAccountsState();
+  const dispatch = useAccountsDispatch();
+
   useEffect(() => {
     const getNotes = async () => {
       const querySnapshot = await getDocs(collection(db, "accounts"));
@@ -28,10 +36,10 @@ export default function Accounts() {
         ...doc.data(),
       }));
 
-      setAccounts(documents);
+      dispatch({ type: "set-accounts", payload: documents });
     };
     getNotes();
-  }, []);
+  }, [dispatch]);
 
   return (
     <>
@@ -45,21 +53,26 @@ export default function Accounts() {
             setShowModal(true);
           }}
         >
-          <IonIcon icon={add} />
+          <IonIcon icon={add} /> <IonIcon icon={wallet} />
         </IonFabButton>
         <IonItemDivider />
       </IonToolbar>
 
-      {accounts.map(({ name, color, value, initialValue }) => (
-        <IonCard style={{ maxWidth: "300px", backgroundColor: color }}>
+      {state.accounts.map(({ id, name, color, value }) => (
+        <IonCard
+          button
+          key={id}
+          style={{ maxWidth: "300px", backgroundColor: color }}
+        >
           <IonCardHeader>
             <IonCardTitle>{name}</IonCardTitle>
           </IonCardHeader>
-          <h1 style={{ margin: "20px", color: "white" }}>
-            {formattAsCurrency(value || initialValue || 0)}
+          <h1 style={{ marginLeft: "20px", color: "white" }}>
+            {formattAsCurrency(value || 0)}
           </h1>
         </IonCard>
       ))}
+      <IonItemDivider />
     </>
   );
 }
