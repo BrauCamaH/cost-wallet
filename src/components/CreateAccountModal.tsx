@@ -14,7 +14,7 @@ import {
   IonSelectOption,
 } from "@ionic/react";
 import { useForm } from "react-hook-form";
-import { collection, addDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import { useAccountsDispatch } from "../providers/WalletProvider";
 
 import Account from "../models/Account";
@@ -36,9 +36,9 @@ const CreateAccountModal: React.FC<AccountModalProps> = ({
   const dispatch = useAccountsDispatch();
   const [color, setColor] = useState("#aabbcc");
 
-  const createAccount = handleSubmit(async ({ name, type, value }) => {
-    const docRef = await addDoc(collection(db, "accounts"), {
-      name,
+  const createAccount = handleSubmit(async ({ id, type, value }) => {
+    await setDoc(doc(db, "accounts", id), {
+      id,
       type,
       value,
       color,
@@ -47,9 +47,9 @@ const CreateAccountModal: React.FC<AccountModalProps> = ({
     modal.current?.dismiss();
     dispatch({
       type: "add-account",
-      payload: { id: docRef.id, name, type, value: value },
+      payload: { id, type, value: value },
     });
-    console.log("Document written with ID: ", docRef.id);
+    console.log("Document written with ID: ", id);
   });
 
   return (
@@ -62,6 +62,7 @@ const CreateAccountModal: React.FC<AccountModalProps> = ({
     >
       <IonToolbar>
         <IonButton
+          fill="clear"
           onClick={() => modal.current?.dismiss()}
           color="ligth"
           slot="start"
@@ -69,7 +70,12 @@ const CreateAccountModal: React.FC<AccountModalProps> = ({
           <IonIcon icon={close} />
         </IonButton>
         <IonTitle size="large">Create Account</IonTitle>
-        <IonButton slot="end" color="secondary" onClick={createAccount}>
+        <IonButton
+          fill="clear"
+          slot="end"
+          color="secondary"
+          onClick={createAccount}
+        >
           Create
         </IonButton>
       </IonToolbar>
@@ -77,8 +83,8 @@ const CreateAccountModal: React.FC<AccountModalProps> = ({
         <IonItem>
           <IonLabel position="stacked">Account Name</IonLabel>
           <IonInput
-            {...register("name")}
-            onIonChange={(e) => setValue("name", e.detail.value!)}
+            {...register("id")}
+            onIonChange={(e) => setValue("id", e.detail.value!)}
             placeholder="Enter text"
           ></IonInput>
         </IonItem>

@@ -91,6 +91,7 @@ const NoteModal: React.FC<NoteModalProps> = ({
     >
       <IonToolbar>
         <IonButton
+          fill="clear"
           onClick={() => modal.current?.dismiss()}
           color="ligth"
           slot="start"
@@ -101,6 +102,7 @@ const NoteModal: React.FC<NoteModalProps> = ({
           {noteToEdit ? "Edit Note" : "Create Note"}
         </IonTitle>
         <IonButton
+          fill="clear"
           slot="end"
           color="secondary"
           onClick={noteToEdit ? editNote : createNote}

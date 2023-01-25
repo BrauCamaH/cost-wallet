@@ -58,14 +58,14 @@ export default function Accounts() {
         <IonItemDivider />
       </IonToolbar>
 
-      {state.accounts.map(({ id, name, color, value }) => (
+      {state.accounts.map(({ id, color, value }) => (
         <IonCard
           button
           key={id}
           style={{ maxWidth: "300px", backgroundColor: color }}
         >
           <IonCardHeader>
-            <IonCardTitle>{name}</IonCardTitle>
+            <IonCardTitle>{id}</IonCardTitle>
           </IonCardHeader>
           <h1 style={{ marginLeft: "20px", color: "white" }}>
             {formattAsCurrency(value || 0)}
