@@ -2,6 +2,8 @@ import { initializeApp } from "firebase/app";
 
 import { getFirestore } from "firebase/firestore";
 
+import { getAuth } from "firebase/auth";
+
 interface FirebaseConfig {
   apiKey: string;
   authDomain: string;
@@ -20,4 +22,5 @@ const config: FirebaseConfig = {
 };
 
 const app = initializeApp(config);
+export const auth = getAuth(app);
 export const db = getFirestore(app);

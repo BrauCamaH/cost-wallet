@@ -35,10 +35,33 @@ import NotesPage from "./pages/Notes";
 import { NotesProvider } from "./providers/NoteProvider";
 import { WalletProvider } from "./providers/WalletProvider";
 import Wallet from "./pages/Wallet";
+import LoginPage from "./pages/Login";
+import { UserProvider, useUserState } from "./providers/UserProvider";
 
 setupIonicReact();
 
-const App: React.FC = () => {
+const DefaultApp = () => {
+  return (
+    <IonApp>
+      <UserProvider>
+        <IonReactRouter>
+          <IonRouterOutlet id="main">
+            <Route path="/" exact={true}>
+              <Redirect to="/page/Login" />
+            </Route>
+            <Route path="/page/Login/" exact={true}>
+              <NotesProvider>
+                <LoginPage />
+              </NotesProvider>
+            </Route>
+          </IonRouterOutlet>
+        </IonReactRouter>
+      </UserProvider>
+    </IonApp>
+  );
+};
+
+const AuthApp: React.FC = () => {
   return (
     <IonApp>
       <IonReactRouter>
@@ -64,6 +87,23 @@ const App: React.FC = () => {
         </IonSplitPane>
       </IonReactRouter>
     </IonApp>
+  );
+};
+
+const AuthOrDefault = () => {
+  const state = useUserState();
+  if (state.user) {
+    return <AuthApp />;
+  } else {
+    return <DefaultApp />;
+  }
+};
+
+const App = () => {
+  return (
+    <UserProvider>
+      <AuthOrDefault />
+    </UserProvider>
   );
 };
 
