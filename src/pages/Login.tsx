@@ -26,7 +26,6 @@ const LoginPage = () => {
   const handleLogin = handleSubmit(async ({ email, password }) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      
     } catch (error) {
       console.error(error);
       setIsError(true);
@@ -50,7 +49,7 @@ const LoginPage = () => {
       />
       <IonCard className="login-form">
         <IonCardHeader>
-          <IonTitle>Login</IonTitle>
+          <IonTitle>NoteCostLink</IonTitle>
         </IonCardHeader>
         <IonCardContent>
           <form noValidate onSubmit={handleLogin}>

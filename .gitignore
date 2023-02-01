@@ -27,6 +27,5 @@ yarn-error.log*
 
 # Optional eslint cache
 .eslintcache
-android/app/src/main/res/
 public/assets/icon/favicon.png
 resources/android/

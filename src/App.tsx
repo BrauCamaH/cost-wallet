@@ -71,6 +71,9 @@ const AuthApp: React.FC = () => {
             <Route path="/" exact={true}>
               <Redirect to="/page/Notes" />
             </Route>
+            <Route path="/page/Login" exact={true}>
+              <Redirect to="/page/Notes" />
+            </Route>
             <Page>
               <Route path="/page/Notes/" exact={true}>
                 <NotesProvider>
@@ -100,6 +103,12 @@ const AuthOrDefault = () => {
 };
 
 const App = () => {
+  function toggleDarkTheme(shouldAdd: boolean) {
+    document.body.classList.toggle("dark", shouldAdd);
+  }
+
+  toggleDarkTheme(true);
+
   return (
     <UserProvider>
       <AuthOrDefault />

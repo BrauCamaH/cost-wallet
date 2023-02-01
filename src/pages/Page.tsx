@@ -9,7 +9,7 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import React from "react";
-import { useLocation } from "react-router";
+import { useHistory, useLocation } from "react-router";
 import "./Page.css";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
@@ -23,6 +23,8 @@ const Page: React.FC<Props> = ({ children }) => {
   const location = useLocation();
   const parts = location.pathname.split("/");
   const name = parts[2];
+
+  const history = useHistory();
 
   const dispatch = useUserDispatch();
 
@@ -38,6 +40,7 @@ const Page: React.FC<Props> = ({ children }) => {
             onClick={async () => {
               await signOut(auth);
               dispatch({ type: "sign-out" });
+              history.push("/");
             }}
             color="danger"
             slot="end"
