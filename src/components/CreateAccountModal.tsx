@@ -20,21 +20,31 @@ import { useAccountsDispatch } from "../providers/WalletProvider";
 import Account from "../models/Account";
 import { close } from "ionicons/icons";
 import { db } from "../firebase";
+import { useHistory } from "react-router";
 
 interface AccountModalProps {
   showModal: boolean;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
+  account?: Account;
 }
 
 const CreateAccountModal: React.FC<AccountModalProps> = ({
   showModal,
   setShowModal,
+  account,
 }) => {
-  const { register, setValue, handleSubmit } = useForm<Account>();
+  const { register, setValue, handleSubmit } = useForm<Account>({
+    defaultValues: {
+      id: account ? account.id : "",
+      type: account ? account.type : undefined,
+      value: account ? account.value : 0,
+    },
+  });
   const modal = useRef<HTMLIonModalElement>(null);
+  const history = useHistory();
 
   const dispatch = useAccountsDispatch();
-  const [color, setColor] = useState("#aabbcc");
+  const [color, setColor] = useState(account?.color || "#aabbcc");
 
   const createAccount = handleSubmit(async ({ id, type, value }) => {
     await setDoc(doc(db, "accounts", id), {
@@ -45,10 +55,16 @@ const CreateAccountModal: React.FC<AccountModalProps> = ({
     });
     setShowModal(false);
     modal.current?.dismiss();
-    dispatch({
-      type: "add-account",
-      payload: { id, type, value: value },
-    });
+
+    if (account) {
+      dispatch({ type: "edit-account", payload: { id, type, value, color } });
+      history.goBack();
+    } else {
+      dispatch({
+        type: "add-account",
+        payload: { id, type, value: value },
+      });
+    }
     console.log("Document written with ID: ", id);
   });
 
@@ -69,14 +85,16 @@ const CreateAccountModal: React.FC<AccountModalProps> = ({
         >
           <IonIcon icon={close} />
         </IonButton>
-        <IonTitle size="large">Create Account</IonTitle>
+        <IonTitle size="large">
+          {account ? "Update Accounte" : "Create Account"}
+        </IonTitle>
         <IonButton
           fill="clear"
           slot="end"
           color="secondary"
           onClick={createAccount}
         >
-          Create
+          {account ? "Edit" : "Create"}
         </IonButton>
       </IonToolbar>
       <form onSubmit={createAccount}>

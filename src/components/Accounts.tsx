@@ -39,7 +39,7 @@ export default function Accounts() {
       dispatch({ type: "set-accounts", payload: documents });
     };
     getNotes();
-  }, [dispatch]);
+  }, [dispatch, state.accounts]);
 
   return (
     <>
@@ -61,6 +61,7 @@ export default function Accounts() {
       {state.accounts.map(({ id, color, value }) => (
         <IonCard
           button
+          routerLink={`/page/Wallet/${id}`}
           key={id}
           style={{ maxWidth: "300px", backgroundColor: color }}
         >

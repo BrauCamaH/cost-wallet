@@ -4,7 +4,6 @@ import {
   IonItem,
   IonCardHeader,
   IonList,
-  IonButton,
   IonTitle,
   IonCardContent,
   IonToolbar,
@@ -25,7 +24,7 @@ import {
   wifi,
 } from "ionicons/icons";
 import { formattAsCurrency } from "../utils/currency";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
 
 import Record from "../models/Record";
 
@@ -62,7 +61,8 @@ const LatestRecords = () => {
 
   useEffect(() => {
     const getRecords = async () => {
-      const querySnashot = await getDocs(collection(db, "records"));
+      const q = query(collection(db, "records"),orderBy("date"), limit(10));
+      const querySnashot = await getDocs(q);
       const documents: Record[] = querySnashot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -115,13 +115,6 @@ const LatestRecords = () => {
           )
         )}
       </IonCardContent>
-      <IonCardHeader>
-        <IonToolbar>
-          <IonButton fill="outline" slot="start">
-            Show More
-          </IonButton>
-        </IonToolbar>
-      </IonCardHeader>
     </IonCard>
   );
 };

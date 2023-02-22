@@ -37,6 +37,7 @@ import { WalletProvider } from "./providers/WalletProvider";
 import Wallet from "./pages/Wallet";
 import LoginPage from "./pages/Login";
 import { UserProvider, useUserState } from "./providers/UserProvider";
+import AccountPage from "./pages/AccountPage";
 
 setupIonicReact();
 
@@ -74,17 +75,23 @@ const AuthApp: React.FC = () => {
             <Route path="/page/Login" exact={true}>
               <Redirect to="/page/Notes" />
             </Route>
+
             <Page>
               <Route path="/page/Notes/" exact={true}>
                 <NotesProvider>
                   <NotesPage />
                 </NotesProvider>
               </Route>
-              <Route path="/page/Wallet/" exact={true}>
-                <WalletProvider>
-                  <Wallet />
-                </WalletProvider>
-              </Route>
+              <WalletProvider>
+                <>
+                  <Route path="/page/Wallet/:id" exact={true}>
+                    <AccountPage />
+                  </Route>
+                  <Route path="/page/Wallet/" exact={true}>
+                    <Wallet />
+                  </Route>
+                </>
+              </WalletProvider>
             </Page>
           </IonRouterOutlet>
         </IonSplitPane>
