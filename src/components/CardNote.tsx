@@ -8,6 +8,7 @@ import {
   IonToolbar,
   IonIcon,
   useIonAlert,
+  IonTextarea,
 } from "@ionic/react";
 import { pencilOutline, trashBinOutline } from "ionicons/icons";
 import { deleteDoc, doc } from "firebase/firestore";
@@ -38,7 +39,9 @@ const NoteCard: React.FC<MyCardProps> = ({ id, title, message }) => {
         <IonCardHeader>
           <IonCardTitle>{title}</IonCardTitle>
         </IonCardHeader>
-        <IonCardContent>{message}</IonCardContent>
+        <IonCardContent>
+          {<IonTextarea autoGrow value={message} />}
+        </IonCardContent>
         <IonToolbar>
           <IonButton
             color="danger"

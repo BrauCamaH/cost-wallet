@@ -25,16 +25,44 @@ import "@ionic/react/css/text-transformation.css";
 import "@ionic/react/css/flex-utils.css";
 import "@ionic/react/css/display.css";
 
+//Custom Style for ionic components
+import "./theme/style.css";
+
 /* Theme variables */
 import "./theme/variables.css";
 import NotesPage from "./pages/Notes";
 
 import { NotesProvider } from "./providers/NoteProvider";
+import { WalletProvider } from "./providers/WalletProvider";
 import Wallet from "./pages/Wallet";
+import LoginPage from "./pages/Login";
+import { UserProvider, useUserState } from "./providers/UserProvider";
+import AccountPage from "./pages/AccountPage";
 
 setupIonicReact();
 
-const App: React.FC = () => {
+const DefaultApp = () => {
+  return (
+    <IonApp>
+      <UserProvider>
+        <IonReactRouter>
+          <IonRouterOutlet id="main">
+            <Route path="/" exact={true}>
+              <Redirect to="/page/Login" />
+            </Route>
+            <Route path="/page/Login/" exact={true}>
+              <NotesProvider>
+                <LoginPage />
+              </NotesProvider>
+            </Route>
+          </IonRouterOutlet>
+        </IonReactRouter>
+      </UserProvider>
+    </IonApp>
+  );
+};
+
+const AuthApp: React.FC = () => {
   return (
     <IonApp>
       <IonReactRouter>
@@ -44,22 +72,54 @@ const App: React.FC = () => {
             <Route path="/" exact={true}>
               <Redirect to="/page/Notes" />
             </Route>
-            <NotesProvider>
-              <Route path="/page/Notes/" exact={true}>
-                <Page>
-                  <NotesPage />
-                </Page>
-              </Route>
-            </NotesProvider>
-            <Route path="/page/Wallet/" exact={true}>
-              <Page>
-                <Wallet />
-              </Page>
+            <Route path="/page/Login" exact={true}>
+              <Redirect to="/page/Notes" />
             </Route>
+
+            <Page>
+              <Route path="/page/Notes/" exact={true}>
+                <NotesProvider>
+                  <NotesPage />
+                </NotesProvider>
+              </Route>
+              <WalletProvider>
+                <>
+                  <Route path="/page/Wallet/:id" exact={true}>
+                    <AccountPage />
+                  </Route>
+                  <Route path="/page/Wallet/" exact={true}>
+                    <Wallet />
+                  </Route>
+                </>
+              </WalletProvider>
+            </Page>
           </IonRouterOutlet>
         </IonSplitPane>
       </IonReactRouter>
     </IonApp>
+  );
+};
+
+const AuthOrDefault = () => {
+  const state = useUserState();
+  if (state.user) {
+    return <AuthApp />;
+  } else {
+    return <DefaultApp />;
+  }
+};
+
+const App = () => {
+  function toggleDarkTheme(shouldAdd: boolean) {
+    document.body.classList.toggle("dark", shouldAdd);
+  }
+
+  toggleDarkTheme(true);
+
+  return (
+    <UserProvider>
+      <AuthOrDefault />
+    </UserProvider>
   );
 };
 

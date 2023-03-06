@@ -1,4 +1,5 @@
 import {
+  IonButton,
   IonButtons,
   IonContent,
   IonHeader,
@@ -8,8 +9,11 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import React from "react";
-import { useLocation } from "react-router";
+import { useHistory, useLocation } from "react-router";
 import "./Page.css";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
+import { useUserDispatch } from "../providers/UserProvider";
 
 type Props = {
   children: React.ReactNode;
@@ -20,6 +24,10 @@ const Page: React.FC<Props> = ({ children }) => {
   const parts = location.pathname.split("/");
   const name = parts[2];
 
+  const history = useHistory();
+
+  const dispatch = useUserDispatch();
+
   return (
     <IonPage>
       <IonHeader>
@@ -28,6 +36,18 @@ const Page: React.FC<Props> = ({ children }) => {
             <IonMenuButton />
           </IonButtons>
           <IonTitle>{name}</IonTitle>
+          <IonButton
+            onClick={async () => {
+              await signOut(auth);
+              dispatch({ type: "sign-out" });
+              history.push("/");
+            }}
+            color="danger"
+            slot="end"
+            fill="clear"
+          >
+            logout
+          </IonButton>
         </IonToolbar>
       </IonHeader>
 

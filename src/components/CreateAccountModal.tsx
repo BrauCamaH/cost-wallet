@@ -14,36 +14,58 @@ import {
   IonSelectOption,
 } from "@ionic/react";
 import { useForm } from "react-hook-form";
-import { collection, addDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
+import { useAccountsDispatch } from "../providers/WalletProvider";
 
 import Account from "../models/Account";
 import { close } from "ionicons/icons";
 import { db } from "../firebase";
+import { useHistory } from "react-router";
 
 interface AccountModalProps {
   showModal: boolean;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
+  account?: Account;
 }
 
 const CreateAccountModal: React.FC<AccountModalProps> = ({
   showModal,
   setShowModal,
+  account,
 }) => {
-  const { register, setValue, handleSubmit } = useForm<Account>();
+  const { register, setValue, handleSubmit } = useForm<Account>({
+    defaultValues: {
+      id: account ? account.id : "",
+      type: account ? account.type : undefined,
+      value: account ? account.value : 0,
+    },
+  });
   const modal = useRef<HTMLIonModalElement>(null);
+  const history = useHistory();
 
-  const [color, setColor] = useState("#aabbcc");
+  const dispatch = useAccountsDispatch();
+  const [color, setColor] = useState(account?.color || "#aabbcc");
 
-  const createAccount = handleSubmit(async ({ name, type, initialValue }) => {
-    const docRef = await addDoc(collection(db, "accounts"), {
-      name,
+  const createAccount = handleSubmit(async ({ id, type, value }) => {
+    await setDoc(doc(db, "accounts", id), {
+      id,
       type,
-      initialValue,
+      value,
       color,
     });
     setShowModal(false);
     modal.current?.dismiss();
-    console.log("Document written with ID: ", docRef.id);
+
+    if (account) {
+      dispatch({ type: "edit-account", payload: { id, type, value, color } });
+      history.goBack();
+    } else {
+      dispatch({
+        type: "add-account",
+        payload: { id, type, value: value },
+      });
+    }
+    console.log("Document written with ID: ", id);
   });
 
   return (
@@ -56,23 +78,31 @@ const CreateAccountModal: React.FC<AccountModalProps> = ({
     >
       <IonToolbar>
         <IonButton
+          fill="clear"
           onClick={() => modal.current?.dismiss()}
           color="ligth"
           slot="start"
         >
           <IonIcon icon={close} />
         </IonButton>
-        <IonTitle size="large">Create Account</IonTitle>
-        <IonButton slot="end" color="secondary" onClick={createAccount}>
-          Create
+        <IonTitle size="large">
+          {account ? "Update Accounte" : "Create Account"}
+        </IonTitle>
+        <IonButton
+          fill="clear"
+          slot="end"
+          color="secondary"
+          onClick={createAccount}
+        >
+          {account ? "Edit" : "Create"}
         </IonButton>
       </IonToolbar>
       <form onSubmit={createAccount}>
         <IonItem>
           <IonLabel position="stacked">Account Name</IonLabel>
           <IonInput
-            {...register("name")}
-            onIonChange={(e) => setValue("name", e.detail.value!)}
+            {...register("id")}
+            onIonChange={(e) => setValue("id", e.detail.value!)}
             placeholder="Enter text"
           ></IonInput>
         </IonItem>
@@ -92,10 +122,8 @@ const CreateAccountModal: React.FC<AccountModalProps> = ({
         <IonItem>
           <IonLabel position="stacked">Initial Value</IonLabel>
           <IonInput
-            {...register("initialValue")}
-            onIonChange={(e) =>
-              setValue("initialValue", parseFloat(e.detail.value!))
-            }
+            {...register("value")}
+            onIonChange={(e) => setValue("value", parseFloat(e.detail.value!))}
             type="number"
             placeholder="Enter text"
           ></IonInput>
