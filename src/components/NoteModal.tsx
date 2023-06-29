@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
-import { useNotesDispatch } from "../providers/NoteProvider";
+import { useNotesDispatch, useNotesState } from "../providers/NoteProvider";
 import {
   IonModal,
   IonInput,
@@ -21,6 +21,8 @@ interface NoteModalProps {
   showModal: boolean;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
   noteToEdit?: Note;
+  limitOfNotes?: number;
+  increaseCount?: Function;
 }
 
 type FormData = {
@@ -32,6 +34,8 @@ const NoteModal: React.FC<NoteModalProps> = ({
   showModal,
   setShowModal,
   noteToEdit,
+  limitOfNotes,
+  increaseCount,
 }) => {
   const { register, setValue, handleSubmit } = useForm<FormData>({
     defaultValues: {
@@ -43,12 +47,14 @@ const NoteModal: React.FC<NoteModalProps> = ({
   const modal = useRef<HTMLIonModalElement>(null);
 
   const dispatch = useNotesDispatch();
+  const notesState = useNotesState();
 
   const createNote = handleSubmit(async ({ title, message }) => {
     try {
       const docRef = await addDoc(collection(db, "notes"), {
         title,
         message,
+        createdAt: new Date(),
       });
       setShowModal(false);
       modal.current?.dismiss();
@@ -57,6 +63,16 @@ const NoteModal: React.FC<NoteModalProps> = ({
         type: "add-note",
         payload: { id: docRef.id, title, message },
       });
+      increaseCount && increaseCount();
+
+      if (limitOfNotes) {
+        if (notesState.notes.length >= limitOfNotes) {
+          dispatch({
+            type: "delete-note",
+            payload: notesState.notes[limitOfNotes - 1].id,
+          });
+        }
+      }
     } catch (e) {
       console.error("Error adding document: ", e);
     }

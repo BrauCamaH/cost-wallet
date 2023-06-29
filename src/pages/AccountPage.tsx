@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import {
   IonCard,
   IonItem,
-  IonCardHeader,
   IonList,
   IonButton,
   IonTitle,
@@ -46,7 +45,10 @@ import { useHistory, useParams } from "react-router";
 
 import CreateAccountModal from "../components/CreateAccountModal";
 
-import { useAccountsState } from "../providers/WalletProvider";
+import {
+  useAccountsDispatch,
+  useAccountsState,
+} from "../providers/WalletProvider";
 
 function getCategoryIcon(category?: string): string {
   switch (category) {
@@ -74,12 +76,11 @@ function getCategoryIcon(category?: string): string {
 }
 
 const AccountPage = () => {
-  const [latestRecords, setLatestRecords] = useState<Record[]>([]);
   const [deleteAlert] = useIonAlert();
-
   const [showModal, setShowModal] = useState(false);
 
   const state = useAccountsState();
+  const dispach = useAccountsDispatch();
 
   const history = useHistory();
 
@@ -90,7 +91,7 @@ const AccountPage = () => {
       const q = query(
         collection(db, "records"),
         where("account", "==", id),
-        limit(10)
+        limit(20)
       );
       const querySnashot = await getDocs(q);
       const documents: Record[] = querySnashot.docs.map((doc) => ({
@@ -98,9 +99,7 @@ const AccountPage = () => {
         ...doc.data(),
       }));
 
-      console.log(state.accounts);
-
-      setLatestRecords(documents);
+      dispach({ type: "set-latestRecords", payload: documents });
     };
 
     getRecords();
@@ -109,10 +108,9 @@ const AccountPage = () => {
   return (
     <>
       <IonTitle style={{ margin: "15px" }}>{id}</IonTitle>
-
       <IonCard style={{ margin: "15px" }}>
         <IonCardContent>
-          {latestRecords.map(
+          {state.latestRecords.map(
             ({
               id,
               value,
@@ -155,13 +153,6 @@ const AccountPage = () => {
             )
           )}
         </IonCardContent>
-        <IonCardHeader>
-          <IonToolbar>
-            <IonButton fill="outline" slot="start">
-              Show More
-            </IonButton>
-          </IonToolbar>
-        </IonCardHeader>
       </IonCard>
       <IonFab horizontal="end" vertical="bottom" slot="fixed">
         <CreateAccountModal

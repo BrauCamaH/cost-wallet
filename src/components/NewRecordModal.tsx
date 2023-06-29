@@ -20,7 +20,10 @@ import { close } from "ionicons/icons";
 import { useForm } from "react-hook-form";
 import { db } from "../firebase";
 
-import { useAccountsState } from "../providers/WalletProvider";
+import {
+  useAccountsDispatch,
+  useAccountsState,
+} from "../providers/WalletProvider";
 import Record from "../models/Record";
 
 const categories = [
@@ -52,6 +55,7 @@ const NewRecordModal: React.FC<{
   const [type, setType] = useState(recordType.income);
 
   const state = useAccountsState();
+  const dispatch = useAccountsDispatch();
 
   const { register, setValue, handleSubmit } = useForm<Record>();
 
@@ -72,11 +76,15 @@ const NewRecordModal: React.FC<{
 
         const accountValue = acc?.value;
         let newValue = 0;
-        if (accountValue && value) {
+        if (accountValue !== undefined && value) {
           newValue = accountValue + value;
         }
 
         await updateDoc(ref, { value: newValue });
+        dispatch({
+          type: "edit-account",
+          payload: { id: ref.id, value: newValue },
+        });
       } else if (type === recordType.expense) {
         await addDoc(collection(db, "records"), {
           value,
@@ -92,7 +100,7 @@ const NewRecordModal: React.FC<{
 
         const accountValue = acc?.value;
         let newValue = 0;
-        if (accountValue && value) {
+        if (accountValue !== undefined && value) {
           newValue = accountValue - value;
         }
         await updateDoc(ref, { value: newValue });
@@ -126,7 +134,7 @@ const NewRecordModal: React.FC<{
 
         const transferValue = transfer?.value;
         let newTransfer = 0;
-        if (transferValue && value) {
+        if (transferValue !== undefined && value) {
           newTransfer = transferValue + value;
         }
         console.log("new transfer" + newTransfer);
@@ -206,7 +214,6 @@ const NewRecordModal: React.FC<{
               }}
               slot="end"
               interface="action-sheet"
-              value={state?.accounts[0]?.id}
               placeholder="Select account"
             >
               {state.accounts.map(({ id }) => (
@@ -226,7 +233,6 @@ const NewRecordModal: React.FC<{
                   }}
                   slot="end"
                   interface="action-sheet"
-                  value={state?.accounts[0]?.id}
                   placeholder="Select account to transfer"
                 >
                   {state.accounts.map(({ id }) => (
@@ -245,7 +251,6 @@ const NewRecordModal: React.FC<{
                 slot="end"
                 interface="action-sheet"
                 placeholder="Select Category"
-                value={categories[0]}
                 {...register("category")}
                 onChange={(acc) => {
                   setValue("category", acc.type);

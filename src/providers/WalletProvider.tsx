@@ -1,9 +1,11 @@
 import { createContext, useReducer, useContext } from "react";
 import Note from "../models/Note";
 import Account from "../models/Account";
+import Record from "../models/Record";
 
 type Action =
   | { type: "set-accounts"; payload: Account[] }
+  | { type: "set-latestRecords"; payload: Record[] }
   | { type: "add-account"; payload: Account }
   | { type: "delete-account"; payload: string }
   | { type: "edit-account"; payload: Account };
@@ -12,6 +14,7 @@ type Dispatch = (action: Action) => void;
 
 type State = {
   accounts: Account[];
+  latestRecords: Record[];
 };
 
 type NotesProviderProps = {
@@ -19,6 +22,7 @@ type NotesProviderProps = {
 };
 const initialState: State = {
   accounts: [],
+  latestRecords: [],
 };
 
 const NotesStateContext = createContext<State>(initialState);
@@ -27,7 +31,7 @@ const NotesDispatchContext = createContext<Dispatch | undefined>(undefined);
 const notesReducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "set-accounts":
-      return { accounts: [...action.payload] };
+      return { ...state, accounts: [...action.payload] };
     case "add-account":
       return { ...state, accounts: [...state.accounts, action.payload] };
 
@@ -48,6 +52,8 @@ const notesReducer = (state: State, action: Action): State => {
 
       return { ...state, accounts: [...newArray] };
     }
+    case "set-latestRecords":
+      return { ...state, latestRecords: action.payload };
   }
 };
 

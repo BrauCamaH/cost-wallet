@@ -14,18 +14,23 @@ import { pencilOutline, trashBinOutline } from "ionicons/icons";
 import { deleteDoc, doc } from "firebase/firestore";
 
 import { db } from "../firebase";
-import { useNotesDispatch } from "../providers/NoteProvider";
+import { useNotesDispatch, useNotesState } from "../providers/NoteProvider";
 
 import NoteModal from "./NoteModal";
+
+import "./CardNote.css";
 
 interface MyCardProps {
   id: string;
   title?: string;
   message?: string;
+  goBack: () => {};
 }
 
-const NoteCard: React.FC<MyCardProps> = ({ id, title, message }) => {
+const NoteCard: React.FC<MyCardProps> = ({ id, title, message, goBack }) => {
   const dispatch = useNotesDispatch();
+  const notesState = useNotesState();
+
   const [showModal, setShowModal] = useState<boolean>(false);
   const [deleteAlert] = useIonAlert();
   return (
@@ -40,7 +45,14 @@ const NoteCard: React.FC<MyCardProps> = ({ id, title, message }) => {
           <IonCardTitle>{title}</IonCardTitle>
         </IonCardHeader>
         <IonCardContent>
-          {<IonTextarea autoGrow value={message} />}
+          {
+            <IonTextarea
+              disabled
+              className="disabled-mss"
+              autoGrow
+              value={message}
+            />
+          }
         </IonCardContent>
         <IonToolbar>
           <IonButton
@@ -57,6 +69,11 @@ const NoteCard: React.FC<MyCardProps> = ({ id, title, message }) => {
                     handler: async () => {
                       try {
                         await deleteDoc(doc(db, "notes", id));
+
+                        notesState.pageCount !== 0 &&
+                          notesState.notes.length === 1 &&
+                          goBack();
+
                         dispatch({ type: "delete-note", payload: id });
                       } catch (error) {}
                     },
