@@ -80,7 +80,7 @@ const AccountPage = () => {
   const [showModal, setShowModal] = useState(false);
 
   const state = useAccountsState();
-  const dispach = useAccountsDispatch();
+  const dispatch = useAccountsDispatch();
 
   const history = useHistory();
 
@@ -99,7 +99,7 @@ const AccountPage = () => {
         ...doc.data(),
       }));
 
-      dispach({ type: "set-latestRecords", payload: documents });
+      dispatch({ type: "set-latestRecords", payload: documents });
     };
 
     getRecords();
