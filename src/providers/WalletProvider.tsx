@@ -6,6 +6,8 @@ import Record from "../models/Record";
 type Action =
   | { type: "set-accounts"; payload: Account[] }
   | { type: "set-latestRecords"; payload: Record[] }
+  | { type: "add-record"; payload: Record }
+  | { type: "refresh-latest" }
   | { type: "add-account"; payload: Account }
   | { type: "delete-account"; payload: string }
   | { type: "edit-account"; payload: Account };
@@ -14,6 +16,7 @@ type Dispatch = (action: Action) => void;
 
 type State = {
   accounts: Account[];
+  refreshLatestRecords: number;
   latestRecords: Record[];
 };
 
@@ -23,6 +26,7 @@ type NotesProviderProps = {
 const initialState: State = {
   accounts: [],
   latestRecords: [],
+  refreshLatestRecords: 0,
 };
 
 const NotesStateContext = createContext<State>(initialState);
@@ -34,6 +38,11 @@ const notesReducer = (state: State, action: Action): State => {
       return { ...state, accounts: [...action.payload] };
     case "add-account":
       return { ...state, accounts: [...state.accounts, action.payload] };
+    case "add-record":
+      return {
+        ...state,
+        latestRecords: [{ ...action.payload }, ...state.latestRecords],
+      };
 
     case "delete-account":
       return {
@@ -54,6 +63,8 @@ const notesReducer = (state: State, action: Action): State => {
     }
     case "set-latestRecords":
       return { ...state, latestRecords: action.payload };
+    case "refresh-latest":
+      return { ...state, refreshLatestRecords: state.refreshLatestRecords + 1 };
   }
 };
 

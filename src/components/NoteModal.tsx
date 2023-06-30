@@ -22,7 +22,6 @@ interface NoteModalProps {
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
   noteToEdit?: Note;
   limitOfNotes?: number;
-  increaseCount?: Function;
 }
 
 type FormData = {
@@ -35,7 +34,6 @@ const NoteModal: React.FC<NoteModalProps> = ({
   setShowModal,
   noteToEdit,
   limitOfNotes,
-  increaseCount,
 }) => {
   const { register, setValue, handleSubmit } = useForm<FormData>({
     defaultValues: {
@@ -63,7 +61,8 @@ const NoteModal: React.FC<NoteModalProps> = ({
         type: "add-note",
         payload: { id: docRef.id, title, message },
       });
-      increaseCount && increaseCount();
+
+      dispatch({ type: "increaseCount" });
 
       if (limitOfNotes) {
         if (notesState.notes.length >= limitOfNotes) {

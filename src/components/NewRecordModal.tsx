@@ -105,13 +105,22 @@ const NewRecordModal: React.FC<{
         }
         await updateDoc(ref, { value: newValue });
       } else if (type === recordType.transfer) {
-        await addDoc(collection(db, "records"), {
+        const newRecord = {
           value,
           account,
           type,
           category: "Transfer",
           accountToTransfer,
           date: new Date(),
+        };
+        const addedRecord = await addDoc(collection(db, "records"), newRecord);
+
+        dispatch({
+          type: "add-record",
+          payload: {
+            id: addedRecord.id,
+            ...newRecord,
+          },
         });
 
         const fromRef = doc(db, "accounts", account || "");
@@ -134,6 +143,7 @@ const NewRecordModal: React.FC<{
 
         const transferValue = transfer?.value;
         let newTransfer = 0;
+
         if (transferValue !== undefined && value) {
           newTransfer = transferValue + value;
         }
@@ -145,10 +155,9 @@ const NewRecordModal: React.FC<{
       console.log(error);
     }
 
+    dispatch({ type: "refresh-latest" });
     modal.current?.dismiss();
     setShowModal(false);
-
-    console.log(values);
   });
 
   return (

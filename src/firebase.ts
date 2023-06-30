@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
+import { getAuth, connectAuthEmulator } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
 interface FirebaseConfig {
@@ -19,8 +19,14 @@ const config: FirebaseConfig = {
   messagingSenderId: "182423058494",
   appId: "1:182423058494:web:f27b11e20f20cbf3ebf96f",
 };
+const authUrl = "http://127.0.0.1:9099";
 
 const app = initializeApp(config);
 export const storage = getStorage(app);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+if (process.env.NODE_ENV === "development") {
+  connectAuthEmulator(auth, authUrl);
+  connectFirestoreEmulator(db, "127.0.0.1", 8080);
+}

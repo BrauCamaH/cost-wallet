@@ -24,10 +24,17 @@ interface MyCardProps {
   id: string;
   title?: string;
   message?: string;
-  goBack: () => {};
+  goBack: Function;
+  refresh: Function;
 }
 
-const NoteCard: React.FC<MyCardProps> = ({ id, title, message, goBack }) => {
+const NoteCard: React.FC<MyCardProps> = ({
+  id,
+  title,
+  message,
+  goBack,
+  refresh,
+}) => {
   const dispatch = useNotesDispatch();
   const notesState = useNotesState();
 
@@ -66,13 +73,23 @@ const NoteCard: React.FC<MyCardProps> = ({ id, title, message, goBack }) => {
                   {
                     text: "Ok",
                     role: "confirm",
+
                     handler: async () => {
                       try {
                         await deleteDoc(doc(db, "notes", id));
+                        dispatch({ type: "decreaseCount" });
 
-                        notesState.pageCount !== 0 &&
-                          notesState.notes.length === 1 &&
-                          goBack();
+                        if (
+                          notesState.pageCount !==
+                          Math.ceil(notesState.notesCount / 3)
+                        ) {
+                          refresh();
+                        }
+                        if (notesState.pageCount !== 0) {
+                          if (notesState.notes.length === 1) {
+                            goBack();
+                          }
+                        }
 
                         dispatch({ type: "delete-note", payload: id });
                       } catch (error) {}

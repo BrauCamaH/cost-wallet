@@ -162,6 +162,7 @@ const AccountPage = () => {
           }
           setShowModal={setShowModal}
           account={state.accounts.find((acc) => acc.id === id)}
+          isEdit
         />
         <IonButton
           onClick={() => {

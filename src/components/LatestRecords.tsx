@@ -81,7 +81,7 @@ const LatestRecords = () => {
     };
 
     getRecords();
-  }, [state.accounts, dispatch]);
+  }, [state.refreshLatestRecords]);
 
   return (
     <IonCard style={{ margin: "15px" }}>

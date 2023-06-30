@@ -10,7 +10,13 @@ import {
   startAfter,
   getCountFromServer,
 } from "firebase/firestore";
-import { IonButton, IonFab, IonFabButton, IonIcon } from "@ionic/react";
+import {
+  IonBadge,
+  IonButton,
+  IonFab,
+  IonFabButton,
+  IonIcon,
+} from "@ionic/react";
 import { add } from "ionicons/icons";
 import { useNotesDispatch, useNotesState } from "../providers/NoteProvider";
 
@@ -22,12 +28,14 @@ import Note from "../models/Note";
 
 export default function NotesPage() {
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [count, setCount] = useState(0);
   const limitOfNotes = 3;
 
+  const [refresh, setRefresh] = useState(0);
   const notesState = useNotesState();
 
   const dispatch = useNotesDispatch();
+
+  const nPages = Math.ceil(notesState.notesCount / limitOfNotes);
 
   useEffect(() => {
     const getNotes = async () => {
@@ -45,17 +53,18 @@ export default function NotesPage() {
       dispatch({ type: "set-notes", payload: documents });
     };
     getNotes();
-  }, [dispatch]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refresh]);
 
   useEffect(() => {
     const getNotes = async () => {
       const q = query(collection(db, "notes"));
       const countSnapshot = await getCountFromServer(q);
 
-      setCount(countSnapshot.data().count);
-      console.log(countSnapshot.data().count);
+      dispatch({ type: "set-notesCount", payload: countSnapshot.data().count });
     };
     getNotes();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const previousPage = async () => {
@@ -102,10 +111,8 @@ export default function NotesPage() {
         showModal={showModal}
         setShowModal={setShowModal}
         limitOfNotes={limitOfNotes}
-        increaseCount={() => {
-          setCount(count + 1);
-        }}
       />
+
       <div style={{ marginBottom: "60px" }}>
         {notesState.notes.map((note) => (
           <NoteCard
@@ -113,14 +120,17 @@ export default function NotesPage() {
             id={note.id}
             title={note.title}
             message={note.message}
-            goBack={previousPage}
+            refresh={()=>{setRefresh(refresh +1)}}
+            goBack={() => {
+              previousPage();
+            }}
           />
         ))}
       </div>
 
       <IonFab horizontal="start" vertical="bottom" slot="fixed">
         <IonButton
-          disabled={notesState.pageCount === 0}
+          disabled={notesState.pageCount === 1}
           onClick={() => {
             previousPage();
           }}
@@ -128,7 +138,7 @@ export default function NotesPage() {
           Back
         </IonButton>
         <IonButton
-          disabled={count <= limitOfNotes * (notesState.pageCount + 1)}
+          disabled={nPages === notesState.pageCount}
           onClick={() => {
             nextPage();
           }}
@@ -136,7 +146,12 @@ export default function NotesPage() {
           Next
         </IonButton>
       </IonFab>
-      {notesState.pageCount === 0 ? (
+      <IonFab horizontal="center" slot="fixed">
+        <IonBadge color="medium">
+          {`Page ${notesState.pageCount} / ${nPages} `}
+        </IonBadge>
+      </IonFab>
+      {notesState.pageCount === 1 ? (
         <IonFab horizontal="end" vertical="bottom" slot="fixed">
           <IonFabButton onClick={() => setShowModal(!showModal)}>
             <IonIcon icon={add} />

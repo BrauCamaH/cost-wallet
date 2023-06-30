@@ -39,7 +39,7 @@ export default function Accounts() {
       dispatch({ type: "set-accounts", payload: documents });
     };
     getNotes();
-  }, [dispatch, state.accounts]);
+  }, []);
 
   return (
     <>

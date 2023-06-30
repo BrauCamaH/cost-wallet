@@ -26,12 +26,14 @@ interface AccountModalProps {
   showModal: boolean;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
   account?: Account;
+  isEdit?: boolean;
 }
 
 const CreateAccountModal: React.FC<AccountModalProps> = ({
   showModal,
   setShowModal,
   account,
+  isEdit,
 }) => {
   const { register, setValue, handleSubmit } = useForm<Account>({
     defaultValues: {
@@ -48,7 +50,6 @@ const CreateAccountModal: React.FC<AccountModalProps> = ({
 
   const createAccount = handleSubmit(async ({ id, type, value }) => {
     await setDoc(doc(db, "accounts", id), {
-      id,
       type,
       value,
       color,
@@ -57,15 +58,14 @@ const CreateAccountModal: React.FC<AccountModalProps> = ({
     modal.current?.dismiss();
 
     if (account) {
-      dispatch({ type: "edit-account", payload: { id, type, value, color } });
       history.goBack();
+      dispatch({ type: "edit-account", payload: { id, type, value, color } });
     } else {
       dispatch({
         type: "add-account",
         payload: { id, type, value: value },
       });
     }
-    console.log("Document written with ID: ", id);
   });
 
   return (
@@ -86,7 +86,7 @@ const CreateAccountModal: React.FC<AccountModalProps> = ({
           <IonIcon icon={close} />
         </IonButton>
         <IonTitle size="large">
-          {account ? "Update Accounte" : "Create Account"}
+          {account ? "Update Account" : "Create Account"}
         </IonTitle>
         <IonButton
           fill="clear"
@@ -101,10 +101,11 @@ const CreateAccountModal: React.FC<AccountModalProps> = ({
         <IonItem>
           <IonLabel position="stacked">Account Name</IonLabel>
           <IonInput
+            disabled={isEdit}
             {...register("id")}
             onIonChange={(e) => setValue("id", e.detail.value!)}
             placeholder="Enter text"
-          ></IonInput>
+          />
         </IonItem>
         <IonItem>
           <IonLabel position="stacked">Type</IonLabel>
@@ -116,7 +117,7 @@ const CreateAccountModal: React.FC<AccountModalProps> = ({
           >
             <IonSelectOption value="Cash">Cash</IonSelectOption>
             <IonSelectOption value="Credit Card">Credit Card</IonSelectOption>
-            <IonSelectOption value="Debit Crad">Debit Crad</IonSelectOption>
+            <IonSelectOption value="Debit Card">Debit Card</IonSelectOption>
           </IonSelect>
         </IonItem>
         <IonItem>
@@ -125,7 +126,7 @@ const CreateAccountModal: React.FC<AccountModalProps> = ({
             {...register("value")}
             onIonChange={(e) => setValue("value", parseFloat(e.detail.value!))}
             type="number"
-            placeholder="Enter text"
+            placeholder="Enter Value"
           ></IonInput>
         </IonItem>
         <IonItem>
