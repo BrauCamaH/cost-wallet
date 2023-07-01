@@ -81,6 +81,7 @@ const LatestRecords = () => {
     };
 
     getRecords();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.refreshLatestRecords]);
 
   return (

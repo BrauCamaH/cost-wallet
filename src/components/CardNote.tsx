@@ -54,6 +54,7 @@ const NoteCard: React.FC<MyCardProps> = ({
         <IonCardContent>
           {
             <IonTextarea
+              color="medium"
               disabled
               className="disabled-mss"
               autoGrow

@@ -1,8 +1,15 @@
-import React, { createContext, useContext, useEffect, useReducer } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
 
 import { onAuthStateChanged, User } from "firebase/auth";
 
 import { auth } from "../firebase";
+import { IonSpinner } from "@ionic/react";
 
 type Action = { type: "set-user"; payload: State } | { type: "sign-out" };
 type Dispatch = (action: Action) => void;
@@ -29,12 +36,14 @@ const userReducer = (state: State, action: Action): State => {
 
 const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(userReducer, initialState);
+  const [isLoading, setisLoading] = useState(true);
 
   useEffect(() => {
     const listener = onAuthStateChanged(
       auth,
       async (user) => {
         if (user) dispatch({ type: "set-user", payload: { user } });
+        setisLoading(false);
       },
       (error) => {
         console.log(error);
@@ -46,7 +55,9 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     };
   }, []);
 
-  return (
+  return isLoading ? (
+    <IonSpinner slot="center"/>
+  ) : (
     <UserStateContext.Provider value={state}>
       <UserDispatchContext.Provider value={dispatch}>
         {children}

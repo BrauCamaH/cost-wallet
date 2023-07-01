@@ -53,7 +53,7 @@ export default function NotesPage() {
       dispatch({ type: "set-notes", payload: documents });
     };
     getNotes();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export default function NotesPage() {
       dispatch({ type: "set-notesCount", payload: countSnapshot.data().count });
     };
     getNotes();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const previousPage = async () => {
@@ -120,14 +120,15 @@ export default function NotesPage() {
             id={note.id}
             title={note.title}
             message={note.message}
-            refresh={()=>{setRefresh(refresh +1)}}
+            refresh={() => {
+              setRefresh(refresh + 1);
+            }}
             goBack={() => {
               previousPage();
             }}
           />
         ))}
       </div>
-
       <IonFab horizontal="start" vertical="bottom" slot="fixed">
         <IonButton
           disabled={notesState.pageCount === 1}
@@ -138,7 +139,7 @@ export default function NotesPage() {
           Back
         </IonButton>
         <IonButton
-          disabled={nPages === notesState.pageCount}
+          disabled={notesState.pageCount === nPages}
           onClick={() => {
             nextPage();
           }}
@@ -148,7 +149,7 @@ export default function NotesPage() {
       </IonFab>
       <IonFab horizontal="center" slot="fixed">
         <IonBadge color="medium">
-          {`Page ${notesState.pageCount} / ${nPages} `}
+          {`Notes ${notesState.notesCount} - Page ${notesState.pageCount} / ${nPages}`}
         </IonBadge>
       </IonFab>
       {notesState.pageCount === 1 ? (

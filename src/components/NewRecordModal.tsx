@@ -81,10 +81,6 @@ const NewRecordModal: React.FC<{
         }
 
         await updateDoc(ref, { value: newValue });
-        dispatch({
-          type: "edit-account",
-          payload: { id: ref.id, value: newValue },
-        });
       } else if (type === recordType.expense) {
         await addDoc(collection(db, "records"), {
           value,
@@ -147,7 +143,6 @@ const NewRecordModal: React.FC<{
         if (transferValue !== undefined && value) {
           newTransfer = transferValue + value;
         }
-        console.log("new transfer" + newTransfer);
 
         await updateDoc(transferRef, { value: newTransfer });
       }

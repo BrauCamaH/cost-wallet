@@ -29,7 +29,7 @@ export default function Accounts() {
   const dispatch = useAccountsDispatch();
 
   useEffect(() => {
-    const getNotes = async () => {
+    const getAccounts = async () => {
       const querySnapshot = await getDocs(collection(db, "accounts"));
       const documents: Account[] = querySnapshot.docs.map((doc) => ({
         id: doc.id,
@@ -38,8 +38,9 @@ export default function Accounts() {
 
       dispatch({ type: "set-accounts", payload: documents });
     };
-    getNotes();
-  }, []);
+    getAccounts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.refreshLatestRecords]);
 
   return (
     <>
