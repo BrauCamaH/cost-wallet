@@ -20,7 +20,10 @@ import { close } from "ionicons/icons";
 import { useForm } from "react-hook-form";
 import { db } from "../firebase";
 
-import { useAccountsState } from "../providers/WalletProvider";
+import {
+  useAccountsDispatch,
+  useAccountsState,
+} from "../providers/WalletProvider";
 import Record from "../models/Record";
 
 const categories = [
@@ -52,6 +55,7 @@ const NewRecordModal: React.FC<{
   const [type, setType] = useState(recordType.income);
 
   const state = useAccountsState();
+  const dispatch = useAccountsDispatch();
 
   const { register, setValue, handleSubmit } = useForm<Record>();
 
@@ -72,7 +76,7 @@ const NewRecordModal: React.FC<{
 
         const accountValue = acc?.value;
         let newValue = 0;
-        if (accountValue && value) {
+        if (accountValue !== undefined && value) {
           newValue = accountValue + value;
         }
 
@@ -92,18 +96,27 @@ const NewRecordModal: React.FC<{
 
         const accountValue = acc?.value;
         let newValue = 0;
-        if (accountValue && value) {
+        if (accountValue !== undefined && value) {
           newValue = accountValue - value;
         }
         await updateDoc(ref, { value: newValue });
       } else if (type === recordType.transfer) {
-        await addDoc(collection(db, "records"), {
+        const newRecord = {
           value,
           account,
           type,
           category: "Transfer",
           accountToTransfer,
           date: new Date(),
+        };
+        const addedRecord = await addDoc(collection(db, "records"), newRecord);
+
+        dispatch({
+          type: "add-record",
+          payload: {
+            id: addedRecord.id,
+            ...newRecord,
+          },
         });
 
         const fromRef = doc(db, "accounts", account || "");
@@ -126,10 +139,10 @@ const NewRecordModal: React.FC<{
 
         const transferValue = transfer?.value;
         let newTransfer = 0;
-        if (transferValue && value) {
+
+        if (transferValue !== undefined && value) {
           newTransfer = transferValue + value;
         }
-        console.log("new transfer" + newTransfer);
 
         await updateDoc(transferRef, { value: newTransfer });
       }
@@ -137,10 +150,9 @@ const NewRecordModal: React.FC<{
       console.log(error);
     }
 
+    dispatch({ type: "refresh-latest" });
     modal.current?.dismiss();
     setShowModal(false);
-
-    console.log(values);
   });
 
   return (
@@ -206,7 +218,6 @@ const NewRecordModal: React.FC<{
               }}
               slot="end"
               interface="action-sheet"
-              value={state?.accounts[0]?.id}
               placeholder="Select account"
             >
               {state.accounts.map(({ id }) => (
@@ -226,7 +237,6 @@ const NewRecordModal: React.FC<{
                   }}
                   slot="end"
                   interface="action-sheet"
-                  value={state?.accounts[0]?.id}
                   placeholder="Select account to transfer"
                 >
                   {state.accounts.map(({ id }) => (
@@ -245,7 +255,6 @@ const NewRecordModal: React.FC<{
                 slot="end"
                 interface="action-sheet"
                 placeholder="Select Category"
-                value={categories[0]}
                 {...register("category")}
                 onChange={(acc) => {
                   setValue("category", acc.type);

@@ -3,14 +3,20 @@ import Note from "../models/Note";
 
 type Action =
   | { type: "set-notes"; payload: Note[] }
+  | { type: "set-notesCount"; payload: number }
   | { type: "add-note"; payload: Note }
   | { type: "delete-note"; payload: string }
-  | { type: "edit-note"; payload: Note };
-
+  | { type: "edit-note"; payload: Note }
+  | { type: "nextPage" }
+  | { type: "previousPage" }
+  | { type: "increaseCount" }
+  | { type: "decreaseCount" };
 type Dispatch = (action: Action) => void;
 
 type State = {
   notes: Note[];
+  pageCount: number;
+  notesCount: number;
 };
 
 type NotesProviderProps = {
@@ -18,6 +24,8 @@ type NotesProviderProps = {
 };
 const initialState: State = {
   notes: [],
+  pageCount: 1,
+  notesCount: 0,
 };
 
 const NotesStateContext = createContext<State>(initialState);
@@ -26,9 +34,11 @@ const NotesDispatchContext = createContext<Dispatch | undefined>(undefined);
 const notesReducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "set-notes":
-      return { notes: [...action.payload] };
+      return { ...state, notes: [...action.payload] };
+    case "set-notesCount":
+      return { ...state, notesCount: action.payload };
     case "add-note":
-      return { ...state, notes: [...state.notes, action.payload] };
+      return { ...state, notes: [action.payload, ...state.notes] };
 
     case "delete-note":
       return {
@@ -47,6 +57,14 @@ const notesReducer = (state: State, action: Action): State => {
 
       return { ...state, notes: [...newArray] };
     }
+    case "nextPage":
+      return { ...state, pageCount: state.pageCount + 1 };
+    case "previousPage":
+      return { ...state, pageCount: state.pageCount - 1 };
+    case "increaseCount":
+      return { ...state, notesCount: state.notesCount + 1 };
+    case "decreaseCount":
+      return { ...state, notesCount: state.notesCount - 1 };
   }
 };
 

@@ -1,4 +1,5 @@
 import {
+  IonBackButton,
   IonButton,
   IonButtons,
   IonContent,
@@ -34,6 +35,7 @@ const Page: React.FC<Props> = ({ children }) => {
         <IonToolbar>
           <IonButtons slot="start">
             <IonMenuButton />
+            <IonBackButton></IonBackButton>
           </IonButtons>
           <IonTitle>{name}</IonTitle>
           <IonButton

@@ -1,0 +1,10 @@
+input:disabled, textarea:disabled, select:disabled, button:disabled {
+   color: white;
+}
+
+ion-spinner{
+   top:50%;
+   left:50%;
+   position: fixed;
+   transform: translate(-50%, -50%);
+}
