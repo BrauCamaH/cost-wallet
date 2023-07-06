@@ -61,74 +61,52 @@ const NewRecordModal: React.FC<{
 
   const createRecord = handleSubmit(async (values) => {
     const { value, account, accountToTransfer, category } = values;
+    const acc = state.accounts.find((acc) => acc.id === account);
+    const ref = doc(db, "accounts", account || "");
+
     try {
       if (type === recordType.income) {
-        await addDoc(collection(db, "records"), {
-          value,
-          account,
-          type,
-          category: "Income",
-          date: new Date(),
-        });
-        const ref = doc(db, "accounts", account || "");
-
-        const acc = state.accounts.find((acc) => acc.id === account);
-
         const accountValue = acc?.value;
         let newValue = 0;
         if (accountValue !== undefined && value) {
           newValue = accountValue + value;
         }
 
+        await addDoc(collection(db, "records"), {
+          value,
+          account,
+          type,
+          category: "Income",
+          date: new Date(),
+          accountValue: newValue,
+        });
+
         await updateDoc(ref, { value: newValue });
       } else if (type === recordType.expense) {
+        const accountValue = acc?.value;
+        let newValue = 0;
+        if (accountValue !== undefined && value) {
+          newValue = accountValue - value;
+        }
         await addDoc(collection(db, "records"), {
           value,
           account,
           type,
           category,
           date: new Date(),
+          accountValue: newValue,
         });
 
-        const ref = doc(db, "accounts", account || "");
-
-        const acc = state.accounts.find((acc) => acc.id === account);
-
-        const accountValue = acc?.value;
-        let newValue = 0;
-        if (accountValue !== undefined && value) {
-          newValue = accountValue - value;
-        }
         await updateDoc(ref, { value: newValue });
       } else if (type === recordType.transfer) {
-        const newRecord = {
-          value,
-          account,
-          type,
-          category: "Transfer",
-          accountToTransfer,
-          date: new Date(),
-        };
-        const addedRecord = await addDoc(collection(db, "records"), newRecord);
-
-        dispatch({
-          type: "add-record",
-          payload: {
-            id: addedRecord.id,
-            ...newRecord,
-          },
-        });
-
         const fromRef = doc(db, "accounts", account || "");
 
-        const acc = state.accounts.find((acc) => acc.id === account);
         const accountValue = acc?.value;
 
         let newValue = 0;
         if (accountValue && value) {
           newValue = accountValue - value;
         }
-        console.log("from value" + newValue);
         await updateDoc(fromRef, { value: newValue });
 
         const transferRef = doc(db, "accounts", accountToTransfer || "");
@@ -143,6 +121,18 @@ const NewRecordModal: React.FC<{
         if (transferValue !== undefined && value) {
           newTransfer = transferValue + value;
         }
+
+        const newRecord = {
+          value,
+          account,
+          type,
+          category:"Transfer",
+          accountToTransfer,
+          date: new Date(),
+          accountValue: newValue,
+        };
+
+        await addDoc(collection(db, "records"), newRecord);
 
         await updateDoc(transferRef, { value: newTransfer });
       }

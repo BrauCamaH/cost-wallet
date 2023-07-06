@@ -11,6 +11,7 @@ export default function Wallet() {
     <>
       <Accounts />
       <LatestRecordsCard />
+      
       <NewRecordModal showModal={showModal} setShowModal={setShowModal} />
       <IonFab horizontal="end" vertical="bottom" slot="fixed">
         <IonFabButton
