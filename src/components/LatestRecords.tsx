@@ -149,7 +149,6 @@ const LatestRecords = () => {
   const [selectedValue, setSelectedValue] = useState();
   const accordionGroupChange = (ev: AccordionGroupCustomEvent) => {
     setSelectedValue(ev.detail.value);
-    console.log(selectedValue);
   };
 
   return (
@@ -216,7 +215,7 @@ const LatestRecords = () => {
         <>
           <IonHeader>
             <IonToolbar>
-              <IonTitle>Records by time over time</IonTitle>
+              <IonTitle>Records by type over time</IonTitle>
             </IonToolbar>
           </IonHeader>
           <ResponsiveContainer width="100%" height="100%">

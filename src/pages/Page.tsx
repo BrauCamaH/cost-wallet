@@ -50,6 +50,7 @@ const Page: React.FC<Props> = ({ children }) => {
           >
             logout
           </IonButton>
+         
         </IonToolbar>
       </IonHeader>
 

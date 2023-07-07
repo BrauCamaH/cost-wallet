@@ -139,6 +139,7 @@ const NoteModal: React.FC<NoteModalProps> = ({
         </IonItem>
         <IonTextarea
           autoGrow
+          color="medium"
           {...register("message")}
           defaultValue={noteToEdit ? noteToEdit.message : ""}
           placeholder={"Write your note..."}

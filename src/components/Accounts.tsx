@@ -9,14 +9,33 @@ import {
   IonIcon,
   IonFab,
   IonButton,
+  IonReorderGroup,
+  IonReorder,
+  IonItem,
+  ItemReorderEventDetail,
 } from "@ionic/react";
 import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { add, wallet, pieChart, close } from "ionicons/icons";
+import {
+  add,
+  wallet,
+  pieChart,
+  close,
+  reorderThree,
+  save,
+  arrowBack,
+} from "ionicons/icons";
 
 import { formattAsCurrency } from "../utils/currency";
 import CreateAccountModal from "./CreateAccountModal";
 import Account from "../models/Account";
-import { collection, getDocs } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  orderBy,
+  query,
+  updateDoc,
+} from "firebase/firestore";
 
 import {
   useAccountsDispatch,
@@ -27,13 +46,16 @@ import { db } from "../firebase";
 
 export default function Accounts() {
   const [showModal, setShowModal] = useState(false);
+  const [reorder, setReorder] = useState(false);
 
   const state = useAccountsState();
   const dispatch = useAccountsDispatch();
 
   useEffect(() => {
     const getAccounts = async () => {
-      const querySnapshot = await getDocs(collection(db, "accounts"));
+      const querySnapshot = await getDocs(
+        query(collection(db, "accounts"), orderBy("index"))
+      );
       const documents: Account[] = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -78,6 +100,29 @@ export default function Accounts() {
       </text>
     );
   };
+  function handleReorder(event: CustomEvent<ItemReorderEventDetail>) {
+    const fromIndex = event.detail.from;
+    const newIndex = event.detail.to;
+
+    console.log("Dragged from index", event.detail.from, "to", event.detail.to);
+    dispatch({
+      type: "edit-account",
+      payload: { ...state.accounts[fromIndex], index: newIndex },
+    });
+    dispatch({
+      type: "edit-account",
+      payload: { ...state.accounts[newIndex], index: fromIndex },
+    });
+
+    event.detail.complete();
+  }
+
+  const saveIndexs = function () {
+    state.accounts.forEach(async (acc) => {
+      const ref = doc(db, "accounts", acc.id);
+      await updateDoc(ref, { index: acc.index });
+    });
+  };
   return (
     <>
       <CreateAccountModal setShowModal={setShowModal} showModal={showModal} />
@@ -85,13 +130,14 @@ export default function Accounts() {
         {showPieChart && (
           <>
             <IonButton
+              fill="outline"
               onClick={() => {
                 setShowPieChart(false);
               }}
             >
               <IonIcon icon={close} />
             </IonButton>
-            <ResponsiveContainer width={300} height={300}>
+            <ResponsiveContainer width={200} height={200}>
               <PieChart>
                 <Pie
                   data={pieData}
@@ -138,23 +184,50 @@ export default function Accounts() {
 
         <IonItemDivider />
       </IonToolbar>
+      <IonButton
+        fill="clear"
+        onClick={() => {
+          setReorder(!reorder);
+        }}
+      >
+        {reorder ? (
+          <IonIcon icon={arrowBack} />
+        ) : (
+          <IonIcon icon={reorderThree} />
+        )}
+      </IonButton>
 
-      {state.accounts.map(({ id, color, value }) => (
-        <IonCard
-          button
-          routerLink={`/page/Wallet/${id}`}
-          key={id}
-          style={{ maxWidth: "300px", backgroundColor: color }}
+      {reorder ? (
+        <IonButton
+          fill="clear"
+          onClick={() => {
+            saveIndexs();
+            setReorder(!reorder);
+          }}
         >
-          <IonCardHeader>
-            <IonCardTitle>{id}</IonCardTitle>
-          </IonCardHeader>
-          <h1 style={{ marginLeft: "20px", color: "white" }}>
-            {formattAsCurrency(value || 0)}
-          </h1>
-        </IonCard>
-      ))}
+          <IonIcon icon={save} />
+        </IonButton>
+      ) : null}
 
+      <IonReorderGroup disabled={!reorder} onIonItemReorder={handleReorder}>
+        {state.accounts.map(({ id, color, value }) => (
+          <IonItem key={id}>
+            <IonCard
+              button
+              routerLink={`/page/Wallet/${id}`}
+              style={{ width: "100%", backgroundColor: color }}
+            >
+              <IonCardHeader>
+                <IonCardTitle>{id}</IonCardTitle>
+              </IonCardHeader>
+              <h1 style={{ marginLeft: "20px", color: "white" }}>
+                {formattAsCurrency(value || 0)}
+              </h1>
+            </IonCard>
+            <IonReorder slot="end" />
+          </IonItem>
+        ))}
+      </IonReorderGroup>
       <IonItemDivider />
     </>
   );

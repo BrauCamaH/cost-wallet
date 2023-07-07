@@ -15,7 +15,10 @@ import {
 } from "@ionic/react";
 import { useForm } from "react-hook-form";
 import { doc, setDoc } from "firebase/firestore";
-import { useAccountsDispatch } from "../providers/WalletProvider";
+import {
+  useAccountsDispatch,
+  useAccountsState,
+} from "../providers/WalletProvider";
 
 import Account from "../models/Account";
 import { close } from "ionicons/icons";
@@ -46,6 +49,7 @@ const CreateAccountModal: React.FC<AccountModalProps> = ({
   const history = useHistory();
 
   const dispatch = useAccountsDispatch();
+  const state = useAccountsState();
   const [color, setColor] = useState(account?.color || "#aabbcc");
 
   const createAccount = handleSubmit(async ({ id, type, value }) => {
@@ -53,6 +57,9 @@ const CreateAccountModal: React.FC<AccountModalProps> = ({
       type,
       value,
       color,
+      index: state.accounts.length,
+      created: new Date(),
+      updated: new Date(),
     });
     setShowModal(false);
     modal.current?.dismiss();
@@ -63,7 +70,7 @@ const CreateAccountModal: React.FC<AccountModalProps> = ({
     } else {
       dispatch({
         type: "add-account",
-        payload: { id, type, value: value },
+        payload: { id, type, value, color },
       });
     }
   });
