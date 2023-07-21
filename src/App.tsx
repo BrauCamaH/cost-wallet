@@ -37,7 +37,10 @@ import { WalletProvider } from "./providers/WalletProvider";
 import Wallet from "./pages/Wallet";
 import LoginPage from "./pages/Login";
 import { UserProvider, useUserState } from "./providers/UserProvider";
+import { RemindersProvider } from "./providers/RemindersProvider";
+
 import AccountPage from "./pages/AccountPage";
+import Reminders from "./pages/Reminders";
 
 setupIonicReact();
 
@@ -92,6 +95,11 @@ const AuthApp: React.FC = () => {
                   </Route>
                 </>
               </WalletProvider>
+              <RemindersProvider>
+                <Route path={"/page/Reminders"}>
+                  <Reminders />
+                </Route>
+              </RemindersProvider>
             </Page>
           </IonRouterOutlet>
         </IonSplitPane>

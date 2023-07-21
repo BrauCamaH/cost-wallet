@@ -131,7 +131,7 @@ const LatestRecords = () => {
     const getRecords = async () => {
       const q = query(
         collection(db, "records"),
-        orderBy("date", "asc"),
+        orderBy("date", "desc"),
         limit(10)
       );
       const querySnashot = await getDocs(q);
