@@ -131,8 +131,8 @@ const LatestRecords = () => {
     const getRecords = async () => {
       const q = query(
         collection(db, "records"),
-        orderBy("date", "desc"),
-        limit(10)
+        orderBy("date", "asc"),
+        limit(15)
       );
       const querySnashot = await getDocs(q);
       const documents: Record[] = querySnashot.docs.map((doc) => ({

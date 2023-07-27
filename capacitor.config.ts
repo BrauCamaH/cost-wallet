@@ -1,8 +1,8 @@
 import { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "io.ionic.starter",
-  appName: "Cost Wallet",
+  appId: "com.bgch.notecostlink",
+  appName: "NoteCostLink",
   webDir: "build",
   bundledWebRuntime: false,
   plugins: {

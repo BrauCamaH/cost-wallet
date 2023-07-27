@@ -8,7 +8,6 @@ import {
   IonMenu,
   IonMenuToggle,
   IonNote,
-  isPlatform,
 } from "@ionic/react";
 
 import { useLocation } from "react-router-dom";
@@ -29,7 +28,6 @@ interface AppPage {
   title: string;
 }
 
-const isAndroid = isPlatform("android");
 
 const appPages: AppPage[] = [
   {
@@ -44,10 +42,6 @@ const appPages: AppPage[] = [
     iosIcon: wallet,
     mdIcon: walletSharp,
   },
-];
-
-const androidPages: AppPage[] = [
-  ...appPages,
   {
     title: "Reminders",
     url: "/page/Reminders",
@@ -59,18 +53,13 @@ const androidPages: AppPage[] = [
 const Menu: React.FC = () => {
   const location = useLocation();
 
-  const menu =
-    isAndroid || process.env.NODE_ENV === "development"
-      ? androidPages
-      : appPages;
-
   return (
     <IonMenu contentId="main" type="overlay">
       <IonContent>
         <IonList id="inbox-list">
           <IonListHeader>NoteCostLink</IonListHeader>
           <IonNote>Notes and Balance</IonNote>
-          {menu.map((appPage, index) => {
+          {appPages.map((appPage, index) => {
             return (
               <IonMenuToggle key={index} autoHide={false}>
                 <IonItem

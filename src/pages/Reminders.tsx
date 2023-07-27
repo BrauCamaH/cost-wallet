@@ -1,11 +1,14 @@
 import {
   IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
   IonCardSubtitle,
+  IonCardTitle,
   IonFab,
   IonFabButton,
   IonIcon,
-  IonItem,
-  IonLabel,
+  IonTextarea,
   IonToolbar,
   useIonAlert,
 } from "@ionic/react";
@@ -35,50 +38,61 @@ const ReminderItem: React.FC<Reminder> = ({ id, title, body, date }) => {
   const dispatch = useRemindersDispatch();
 
   return (
-    <IonItem button={false}>
-      <IonToolbar>
-        <IonLabel>{title}</IonLabel>
-        <IonCardSubtitle>{body}</IonCardSubtitle>
-      </IonToolbar>
-      <IonItem slot="end">
+    <>
+      <IonCard>
+        <IonCardHeader>
+          <IonToolbar>
+            <IonCardTitle>{title}</IonCardTitle>
+            <IonCardSubtitle slot="end">
+              {date &&
+                new Date(date).toLocaleDateString() +
+                  " " +
+                  new Date(date).getHours() +
+                  ":" +
+                  new Date(date).getMinutes()}
+            </IonCardSubtitle>
+          </IonToolbar>
+        </IonCardHeader>
+        <IonCardContent>
+          {
+            <IonTextarea
+              color="medium"
+              disabled
+              className="disabled-mss"
+              autoGrow
+              value={body}
+            />
+          }
+        </IonCardContent>
         <IonToolbar>
-          <IonLabel>Date</IonLabel>
-          <IonCardSubtitle>
-            {date &&
-              new Date(date).toDateString() +
-                " " +
-                new Date(date).getHours() +
-                ":" +
-                new Date(date).getMinutes()}
-          </IonCardSubtitle>
-        </IonToolbar>
-        <IonButton
-          color="danger"
-          slot="end"
-          onClick={() => {
-            deleteAlert({
-              header: "Are you sure?",
-              buttons: [
-                { text: "Cancel", role: "cancel" },
-                {
-                  text: "Ok",
-                  role: "confirm",
+          <IonButton
+            color="danger"
+            slot="end"
+            onClick={() => {
+              deleteAlert({
+                header: "Are you sure?",
+                buttons: [
+                  { text: "Cancel", role: "cancel" },
+                  {
+                    text: "Ok",
+                    role: "confirm",
 
-                  handler: async () => {
-                    try {
-                      await deleteDoc(doc(db, "reminders", id));
-                      dispatch({ type: "delete-reminder", payload: id });
-                    } catch (error) {}
+                    handler: async () => {
+                      try {
+                        await deleteDoc(doc(db, "reminders", id));
+                        dispatch({ type: "delete-reminder", payload: id });
+                      } catch (error) {}
+                    },
                   },
-                },
-              ],
-            });
-          }}
-        >
-          <IonIcon icon={trash} />
-        </IonButton>
-      </IonItem>
-    </IonItem>
+                ],
+              });
+            }}
+          >
+            <IonIcon icon={trash} />
+          </IonButton>
+        </IonToolbar>
+      </IonCard>
+    </>
   );
 };
 
@@ -107,6 +121,7 @@ const Reminders = () => {
     <>
       {state.reminders.map((reminder) => (
         <ReminderItem
+          key={reminder.id}
           id={reminder.id}
           body={reminder.body}
           title={reminder.title}

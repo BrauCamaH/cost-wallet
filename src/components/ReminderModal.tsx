@@ -11,6 +11,7 @@ import {
   IonTitle,
   IonDatetimeButton,
   IonDatetime,
+  isPlatform,
 } from "@ionic/react";
 import { useForm } from "react-hook-form";
 import { close } from "ionicons/icons";
@@ -39,17 +40,23 @@ const ReminderModal: React.FC<ReminderModalProps> = ({
 
   const modal = useRef<HTMLIonModalElement>(null);
 
-  const createReminder = handleSubmit(async ({ title, message }) => {
+  const createReminder = handleSubmit(async ({ title, message, date }) => {
+    const isAndroid = isPlatform("android");
+
+    console.log(new Date(date).toDateString());
     try {
-      await LocalNotifications.schedule({
-        notifications: [
-          {
-            title: title,
-            body: message,
-            id: new Date().getMilliseconds(),
-          },
-        ],
-      });
+      if (isAndroid) {
+        await LocalNotifications.schedule({
+          notifications: [
+            {
+              title: title,
+              body: message,
+              id: new Date().getMilliseconds(),
+              schedule: { at: new Date(date) },
+            },
+          ],
+        });
+      }
       const docRef = await addDoc(collection(db, "reminders"), {
         title,
         body: message,
