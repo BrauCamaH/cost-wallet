@@ -43,7 +43,6 @@ const ReminderModal: React.FC<ReminderModalProps> = ({
   const createReminder = handleSubmit(async ({ title, message, date }) => {
     const isAndroid = isPlatform("android");
 
-    console.log(new Date(date).toDateString());
     try {
       if (isAndroid) {
         await LocalNotifications.schedule({
@@ -70,7 +69,7 @@ const ReminderModal: React.FC<ReminderModalProps> = ({
           title,
           body: message,
           createdAt: new Date(),
-          date: new Date(),
+          date: new Date(date),
         },
       });
       modal.current?.dismiss();

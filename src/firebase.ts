@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
-import { getStorage } from "firebase/storage";
+import { connectStorageEmulator, getStorage } from "firebase/storage";
 
 interface FirebaseConfig {
   apiKey: string;
@@ -29,4 +29,5 @@ export const db = getFirestore(app);
 if (process.env.NODE_ENV === "development") {
   connectAuthEmulator(auth, authUrl);
   connectFirestoreEmulator(db, "127.0.0.1", 8080);
+  connectStorageEmulator(storage, "127.0.0.1", 9199);
 }
