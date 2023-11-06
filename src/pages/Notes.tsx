@@ -25,8 +25,10 @@ import NoteModal from "../components/NoteModal";
 import { db } from "../firebase";
 import NoteCard from "../components/CardNote";
 import Note from "../models/Note";
+import LoadingBackdrop from "../components/LoadingBackdrop";
 
 export default function NotesPage() {
+  const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState<boolean>(false);
   const limitOfNotes = 3;
 
@@ -38,6 +40,8 @@ export default function NotesPage() {
   const nPages = Math.ceil(notesState.notesCount / limitOfNotes);
 
   useEffect(() => {
+    setLoading(true);
+
     const getNotes = async () => {
       const q = query(
         collection(db, "notes"),
@@ -51,23 +55,29 @@ export default function NotesPage() {
         ...doc.data(),
       }));
       dispatch({ type: "set-notes", payload: documents });
+      setLoading(false);
     };
     getNotes();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
   useEffect(() => {
+    setLoading(true);
     const getNotes = async () => {
       const q = query(collection(db, "notes"));
       const countSnapshot = await getCountFromServer(q);
 
       dispatch({ type: "set-notesCount", payload: countSnapshot.data().count });
+      setLoading(false);
     };
     getNotes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const previousPage = async () => {
+    setLoading(true);
+
     const q = query(
       collection(db, "notes"),
       orderBy("createdAt", "desc"),
@@ -82,9 +92,12 @@ export default function NotesPage() {
 
     dispatch({ type: "set-notes", payload: documents });
     dispatch({ type: "previousPage" });
+    setLoading(false);
   };
 
   const nextPage = async () => {
+    setLoading(true);
+
     let lastKey;
     notesState.notes.forEach((doc) => {
       lastKey = doc.createdAt || "";
@@ -95,6 +108,7 @@ export default function NotesPage() {
       startAfter(lastKey),
       limit(limitOfNotes)
     );
+
     const querySnapshot = await getDocs(q);
     const documents: Note[] = querySnapshot.docs.map((doc) => ({
       id: doc.id,
@@ -103,7 +117,12 @@ export default function NotesPage() {
 
     dispatch({ type: "set-notes", payload: documents });
     dispatch({ type: "nextPage" });
+    setLoading(false);
   };
+
+  if (loading) {
+    return <LoadingBackdrop />;
+  }
 
   return (
     <>

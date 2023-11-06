@@ -20,6 +20,7 @@
     "capacitor": "^0.5.5",
     "eslint": "^8.45.0",
     "firebase": "^10.0.0",
+    "firebase-tools": "^12.6.2",
     "history": "^4.9.0",
     "ionicons": "^6.0.3",
     "react": "^18.2.0",
@@ -46,7 +47,8 @@
     "workbox-streams": "^5.1.4"
   },
   "scripts": {
-    "dev": "firebase emulators:start --import=seed",
+    "dev": "concurrently \"npm run start:firebase\" \"npm run start\"",
+    "start:firebase": "firebase emulators:start --import=seed",
     "serve": "vite preview",
     "start": "vite --host",
     "build": "tsc && vite build",
@@ -84,6 +86,7 @@
     "@types/react-router": "^5.1.11",
     "@types/react-router-dom": "^5.1.7",
     "@vitejs/plugin-react": "^4.0.3",
+    "concurrently": "^8.2.2",
     "vite": "^4.4.3",
     "vite-plugin-svgr": "^3.2.0",
     "vite-tsconfig-paths": "^4.2.0"
